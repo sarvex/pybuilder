@@ -44,7 +44,7 @@ class BuiltinPluginLoader(PluginLoader):
 
     def load_plugin(self, project, name):
         self.logger.debug("Trying to load builtin plugin '%s'", name)
-        builtin_plugin_name = "pybuilder.plugins.%s_plugin" % name
+        builtin_plugin_name = f"pybuilder.plugins.{name}_plugin"
         try:
             __import__(builtin_plugin_name)
             self.logger.debug("Found builtin plugin '%s'", builtin_plugin_name)

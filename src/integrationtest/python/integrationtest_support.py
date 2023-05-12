@@ -57,17 +57,23 @@ class IntegrationTestSupport(unittest.TestCase):
 
     def assert_directory_exists(self, name):
         full_path = self.full_path(name)
-        self.assertTrue(os.path.exists(full_path), msg="Directory does not exist: %s" % full_path)
-        self.assertTrue(os.path.isdir(full_path), msg="Not a directory: %s" % full_path)
+        self.assertTrue(
+            os.path.exists(full_path), msg=f"Directory does not exist: {full_path}"
+        )
+        self.assertTrue(os.path.isdir(full_path), msg=f"Not a directory: {full_path}")
 
     def assert_file_does_not_exist(self, name):
         full_path = self.full_path(name)
-        self.assertFalse(os.path.exists(full_path), msg="File should NOT exist: %s" % full_path)
+        self.assertFalse(
+            os.path.exists(full_path), msg=f"File should NOT exist: {full_path}"
+        )
 
     def assert_file_exists(self, name):
         full_path = self.full_path(name)
-        self.assertTrue(os.path.exists(full_path), msg="File does not exist: %s" % full_path)
-        self.assertTrue(os.path.isfile(full_path), msg="Not a file: %s" % full_path)
+        self.assertTrue(
+            os.path.exists(full_path), msg=f"File does not exist: {full_path}"
+        )
+        self.assertTrue(os.path.isfile(full_path), msg=f"Not a file: {full_path}")
 
     def assert_file_permissions(self, expected_permissions, name):
         full_path = self.full_path(name)
@@ -77,7 +83,9 @@ class IntegrationTestSupport(unittest.TestCase):
     def assert_file_empty(self, name):
         self.assert_file_exists(name)
         full_path = self.full_path(name)
-        self.assertEquals(0, os.path.getsize(full_path), msg="File %s is not empty." % full_path)
+        self.assertEquals(
+            0, os.path.getsize(full_path), msg=f"File {full_path} is not empty."
+        )
 
     def assert_file_contains(self, name, expected_content_part):
         full_path = self.full_path(name)
@@ -91,11 +99,7 @@ class IntegrationTestSupport(unittest.TestCase):
 
         count_of_new_lines = expected_file_content.count("\n")
 
-        if count_of_new_lines == 0:
-            expected_lines = 1
-        else:
-            expected_lines = count_of_new_lines
-
+        expected_lines = 1 if count_of_new_lines == 0 else count_of_new_lines
         expected_content = StringIO(expected_file_content)
         actual_line_number = 0
 

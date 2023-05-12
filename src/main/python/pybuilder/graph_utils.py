@@ -36,27 +36,19 @@ class Graph(object):
         self.edges = edges
 
     def assert_no_cycles_present(self, include_trivial_cycles=True):
-        cycles = []
         components = tarjan_scc(self.edges)
-        for component in components:
-            if len(component) > 1:
-                cycles.append(component)
-                # every nontrivial strongly connected component
-                # contains at least one directed cycle, so len()>1 is a showstopper
-
-        if cycles:
+        if cycles := [component for component in components if len(component) > 1]:
             raise self.error_with_cycles(cycles)
 
         if include_trivial_cycles:
             self.assert_no_trivial_cycles_present()
 
     def assert_no_trivial_cycles_present(self):
-        trivial_cycles = []
-        for source, destination in self.edges.items():
-            if source in destination:
-                trivial_cycles.append((source, source))
-
-        if trivial_cycles:
+        if trivial_cycles := [
+            (source, source)
+            for source, destination in self.edges.items()
+            if source in destination
+        ]:
             raise self.error_with_cycles(trivial_cycles)
 
     def error_with_cycles(self, cycles):

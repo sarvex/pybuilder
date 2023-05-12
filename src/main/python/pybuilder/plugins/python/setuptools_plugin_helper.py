@@ -26,4 +26,4 @@ def build_dependency_version_string(dependency):
     if dependency.version[0] in ("<", ">", "="):
         return dependency.version
 
-    return ">=%s" % dependency.version
+    return f">={dependency.version}"

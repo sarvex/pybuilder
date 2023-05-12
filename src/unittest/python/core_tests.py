@@ -369,13 +369,11 @@ class LoggerTest(unittest.TestCase):
 
         def assert_not_logged(self, level, message, *arguments):
             if (level, message, arguments) in self._logged:
-                raise AssertionError(
-                    "Logged %s %s %s" % (level, message, arguments))
+                raise AssertionError(f"Logged {level} {message} {arguments}")
 
         def assert_logged(self, level, message, *arguments):
             if (level, message, arguments) not in self._logged:
-                raise AssertionError(
-                    "Not logged %s %s %s" % (level, message, arguments))
+                raise AssertionError(f"Not logged {level} {message} {arguments}")
 
     def test_should_log_debug_message_without_arguments(self):
         logger = LoggerTest.LoggerMock(Logger.DEBUG)

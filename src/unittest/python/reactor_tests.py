@@ -45,12 +45,10 @@ class TaskNameMatcher (Matcher):
         self.task_name = task_name
 
     def matches(self, arg):
-        if not isinstance(arg, Task):
-            return False
-        return arg.name == self.task_name
+        return False if not isinstance(arg, Task) else arg.name == self.task_name
 
     def repr(self):
-        return "Task with name %s" % self.task_name
+        return f"Task with name {self.task_name}"
 
 
 class ReactorTest (unittest.TestCase):

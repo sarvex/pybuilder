@@ -84,7 +84,7 @@ class FormatTimestampTest(unittest.TestCase):
     def assert_matches(self, regex, actual, message=None):
         if not re.match(regex, actual):
             if not message:
-                message = "'%s' does not match '%s'" % (actual, regex)
+                message = f"'{actual}' does not match '{regex}'"
 
             self.fail(message)
 

@@ -151,7 +151,7 @@ def _register_test_and_source_path_and_return_test_dir(project, system_path):
 
 
 def write_report(name, project, logger, result, console_out):
-    project.write_report("%s" % name, console_out)
+    project.write_report(f"{name}", console_out)
 
     report = {"tests-run": result.testsRun,
               "errors": [],
@@ -173,7 +173,7 @@ def write_report(name, project, logger, result, console_out):
         if project.get_property("verbose"):
             print_text_line(failure[1])
 
-    project.write_report("%s.json" % name, render_report(report))
+    project.write_report(f"{name}.json", render_report(report))
 
     report_to_ci_server(project, result)
 

@@ -57,6 +57,6 @@ class ReportsProcessor(object):
         for report in self.reports:
             test_name = report['test']
             test_failed = report['success'] is not True
-            with test_proxy_for(project).and_test_name('Integrationtest.%s' % test_name) as test:
+            with test_proxy_for(project).and_test_name(f'Integrationtest.{test_name}') as test:
                 if test_failed:
                     test.fails(report['exception'])

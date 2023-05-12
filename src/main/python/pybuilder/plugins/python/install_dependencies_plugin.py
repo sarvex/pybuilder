@@ -92,8 +92,11 @@ def create_install_log_directory(logger, project):
 
 def install_dependency(logger, project, dependency):
     url = getattr(dependency, "url", None)
-    logger.info("Installing dependency '%s'%s", dependency.name,
-                " from %s" % url if url else "")
+    logger.info(
+        "Installing dependency '%s'%s",
+        dependency.name,
+        f" from {url}" if url else "",
+    )
     log_file = project.expand_path("$dir_install_logs", dependency.name)
 
     if sys.platform.startswith("win"):
@@ -105,13 +108,12 @@ def install_dependency(logger, project, dependency):
     pip_command_line = "pip install {0}{1}".format(build_pip_install_options(project, pip_dependency), pip_dependency)
     exit_code = execute_command(pip_command_line, log_file, shell=True)
     if exit_code != 0:
-        if project.get_property("verbose"):
-            print_file_content(log_file)
-            raise BuildFailedException("Unable to install dependency '%s'.", dependency.name)
-        else:
+        if not project.get_property("verbose"):
             raise BuildFailedException("Unable to install dependency '%s'. See %s for details.",
                                        getattr(dependency, "name", dependency),
                                        log_file)
+        print_file_content(log_file)
+        raise BuildFailedException("Unable to install dependency '%s'.", dependency.name)
 
 
 def build_pip_install_options(project, dependency):

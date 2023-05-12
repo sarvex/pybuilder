@@ -43,7 +43,7 @@ use_plugin("python.coverage")
 use_plugin("python.flake8")
 use_plugin("python.frosted")
 
-if not sys.version_info[0] == 3:
+if sys.version_info[0] != 3:
     use_plugin("python.snakefood")
 
 use_plugin("python.pydev")
@@ -81,7 +81,7 @@ def initialize(project):
     project.build_depends_on("pyassert")
     project.build_depends_on("wheel")
     project.build_depends_on("pygments")
-    if sys.version_info[0:2] == (2, 6):
+    if sys.version_info[:2] == (2, 6):
         project.build_depends_on("importlib") # for fluentmock
 
     project.set_property("verbose", True)

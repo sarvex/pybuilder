@@ -36,7 +36,7 @@ def django_run_server(project, logger):
     try:
         __import__(settings_module_name)
     except ImportError as e:
-        raise PyBuilderException("Error when importing settings module: " + str(e))
+        raise PyBuilderException(f"Error when importing settings module: {str(e)}")
 
     from django import VERSION as DJANGO_VERSION
     if DJANGO_VERSION < (1, 4, 0):

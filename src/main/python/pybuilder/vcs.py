@@ -63,13 +63,8 @@ class VCSRevision(object):
 
     def is_a_git_repo(self):
         exit_code, _, __ = execute_command_and_capture_output("git", "status")
-        if exit_code == 0:
-            return True
-        return False
+        return exit_code == 0
 
     def is_a_svn_repo(self):
         exit_code, stdout, stderr = execute_command_and_capture_output("svn", "status")
-        if "not a working copy" in stderr or exit_code != 0:
-            return False
-
-        return True
+        return "not a working copy" not in stderr and exit_code == 0

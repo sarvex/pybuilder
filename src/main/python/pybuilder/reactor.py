@@ -175,9 +175,10 @@ class Reactor(object):
                 property_override, property_overrides[property_override])
 
     def log_project_properties(self):
-        formatted = ""
-        for key in sorted(self.project.properties):
-            formatted += "\n%40s : %s" % (key, self.project.get_property(key))
+        formatted = "".join(
+            "\n%40s : %s" % (key, self.project.get_property(key))
+            for key in sorted(self.project.properties)
+        )
         self.logger.debug("Project properties: %s", formatted)
 
     def import_plugin(self, plugin):
@@ -248,7 +249,8 @@ class Reactor(object):
             return imp.load_source("build", project_descriptor)
         except ImportError as e:
             raise PyBuilderException(
-                "Error importing project descriptor %s: %s" % (project_descriptor, e))
+                f"Error importing project descriptor {project_descriptor}: {e}"
+            )
 
     @staticmethod
     def verify_project_directory(project_directory, project_descriptor):

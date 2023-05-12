@@ -32,7 +32,7 @@ from pybuilder.core import Project
 class InitPythonDirectoriesTest (unittest.TestCase):
 
     def greedy(self, generator):
-        return [element for element in generator]
+        return list(generator)
 
     def setUp(self):
         self.project = Project(".")

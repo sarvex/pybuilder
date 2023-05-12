@@ -57,15 +57,11 @@ class Executable(object):
         self._name = name
         self.description = description
         self.callable = callable
-        if hasattr(callable, "__module__"):
-            self.source = callable.__module__
-        else:
-            self.source = "n/a"
-
+        self.source = callable.__module__ if hasattr(callable, "__module__") else "n/a"
         if isinstance(self.callable, types.FunctionType):
             self.parameters = inspect.getargspec(self.callable).args
         else:
-            raise TypeError("Don't know how to handle callable %s" % callable)
+            raise TypeError(f"Don't know how to handle callable {callable}")
 
     @property
     def name(self):
@@ -75,7 +71,9 @@ class Executable(object):
         arguments = []
         for parameter in self.parameters:
             if parameter not in argument_dict:
-                raise ValueError("Invalid parameter '%s' for %s %s" % (parameter, self.__class__.__name__, self.name))
+                raise ValueError(
+                    f"Invalid parameter '{parameter}' for {self.__class__.__name__} {self.name}"
+                )
             arguments.append(argument_dict[parameter])
 
         self.callable(*arguments)
@@ -97,9 +95,7 @@ class Task(object):
         self.description = [description]
 
     def __eq__(self, other):
-        if isinstance(other, Task):
-            return self.name == other.name
-        return False
+        return self.name == other.name if isinstance(other, Task) else False
 
     def __hash__(self):
         return 9 * hash(self.name)
@@ -108,9 +104,7 @@ class Task(object):
         return not self.__eq__(other)
 
     def __lt__(self, other):
-        if isinstance(other, Task):
-            return self.name < other.name
-        return self.name < other
+        return self.name < other.name if isinstance(other, Task) else self.name < other
 
     def extend(self, task):
         self.executables += task.executables
@@ -209,12 +203,11 @@ class ExecutionManager(object):
                           task.name)
 
         timer = Timer.start()
-        number_of_actions = 0
-
-        for action in self._execute_before[task.name]:
-            if self.execute_action(action, keyword_arguments):
-                number_of_actions += 1
-
+        number_of_actions = sum(
+            1
+            for action in self._execute_before[task.name]
+            if self.execute_action(action, keyword_arguments)
+        )
         task.execute(self.logger, keyword_arguments)
 
         for action in self._execute_after[task.name]:
@@ -238,12 +231,9 @@ class ExecutionManager(object):
     def execute_execution_plan(self, execution_plan, **keyword_arguments):
         self.assert_dependencies_resolved()
 
-        summaries = []
-
-        for task in execution_plan:
-            summaries.append(self.execute_task(task, **keyword_arguments))
-
-        return summaries
+        return [
+            self.execute_task(task, **keyword_arguments) for task in execution_plan
+        ]
 
     def get_task(self, name):
         if not self.has_task(name):
@@ -275,9 +265,10 @@ class ExecutionManager(object):
 
         execution_plan = []
 
-        dependency_edges = {}
-        for task in self.collect_all_transitive_tasks(as_list(task_names)):
-            dependency_edges[task.name] = task.dependencies
+        dependency_edges = {
+            task.name: task.dependencies
+            for task in self.collect_all_transitive_tasks(as_list(task_names))
+        }
         try:
             Graph(dependency_edges).assert_no_cycles_present()
         except GraphHasCycles as cycles:

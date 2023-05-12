@@ -86,9 +86,7 @@ def as_list(*whatever):
     for w in whatever:
         if w is None:
             continue
-        elif isinstance(w, list):
-            result += w
-        elif isinstance(w, tuple):
+        elif isinstance(w, (list, tuple)):
             result += w
         else:
             result.append(w)
@@ -96,15 +94,11 @@ def as_list(*whatever):
 
 
 def remove_leading_slash_or_dot_from_path(path):
-    if path.startswith('/') or path.startswith('.'):
-        return path[1:]
-    return path
+    return path[1:] if path.startswith('/') or path.startswith('.') else path
 
 
 def remove_python_source_suffix(file_name):
-    if file_name.endswith(".py"):
-        return file_name[0:-len(".py")]
-    return file_name
+    return file_name[:-len(".py")] if file_name.endswith(".py") else file_name
 
 
 def discover_modules(source_path, suffix=".py"):
@@ -139,7 +133,7 @@ def discover_files_matching(start_dir, file_glob):
 
 def execute_command(command_and_arguments, outfile_name, env=None, cwd=None, error_file_name=None, shell=False):
     if error_file_name is None:
-        error_file_name = outfile_name + ".err"
+        error_file_name = f"{outfile_name}.err"
 
     with open(outfile_name, "w") as out_file:
         with open(error_file_name, "w") as error_file:
@@ -227,9 +221,7 @@ class GlobExpression(object):
         self.pattern = re.compile(self.regex)
 
     def matches(self, path):
-        if self.pattern.match(path):
-            return True
-        return False
+        return bool(self.pattern.match(path))
 
 
 def mkdir(directory):

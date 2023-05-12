@@ -51,8 +51,8 @@ def publish(project, logger):
 
 
 def _write_command_report(project, stdout, stderr, command_line, phase, process_return_code):
-        project.write_report('exec_%s' % phase, stdout)
-        project.write_report('exec_%s.err' % phase, stderr)
+    project.write_report(f'exec_{phase}', stdout)
+    project.write_report(f'exec_{phase}.err', stderr)
 
 
 def _log_quoted_output(logger, output_type, output, phase):
@@ -64,7 +64,7 @@ def _log_quoted_output(logger, output_type, output, phase):
 
 
 def run_command(phase, project, logger):
-    command_line = project.get_property('%s_command' % phase)
+    command_line = project.get_property(f'{phase}_command')
 
     if not command_line:
         return
@@ -81,10 +81,10 @@ def run_command(phase, project, logger):
                           phase,
                           process_return_code)
 
-    if project.get_property('%s_propagate_stdout' % phase) and stdout:
+    if project.get_property(f'{phase}_propagate_stdout') and stdout:
         _log_quoted_output(logger, '', stdout, phase)
 
-    if project.get_property('%s_propagate_stderr' % phase) and stderr:
+    if project.get_property(f'{phase}_propagate_stderr') and stderr:
         _log_quoted_output(logger, 'error', stderr, phase)
 
     if process_return_code != 0:

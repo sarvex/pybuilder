@@ -27,7 +27,7 @@ class PytddmonPluginTests(unittest.TestCase):
 
     @patch('pybuilder.plugins.python.pytddmon_plugin.subprocess')
     def test_should_run_pytddmon(self, subprocess):
-        subprocess.check_output.side_effect = lambda *args, **kwargs: ' '.join(a for a in args)
+        subprocess.check_output.side_effect = lambda *args, **kwargs: ' '.join(args)
         project = Project('/path/to/project', name='pybuilder')
         project.set_property('dir_source_main_python', 'path/to/source')
         project.set_property(

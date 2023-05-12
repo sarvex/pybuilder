@@ -39,10 +39,11 @@ def execute_pymetrics(project, logger):
 
     files_to_scan = []
     for root, _, files in os.walk(source_dir):
-        for file_name in files:
-            if file_name.endswith(".py"):
-                files_to_scan.append(os.path.join(root, file_name))
-
+        files_to_scan.extend(
+            os.path.join(root, file_name)
+            for file_name in files
+            if file_name.endswith(".py")
+        )
     csv_file = project.expand_path("$dir_reports/pymetrics.csv")
 
     command = ["pymetrics", "--nosql", "-c", csv_file] + files_to_scan

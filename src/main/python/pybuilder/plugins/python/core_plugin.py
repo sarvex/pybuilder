@@ -49,8 +49,7 @@ def init_python_directories(project):
                     package = full_path.replace(source_path, "")
                     if package.startswith(os.sep):
                         package = package[1:]
-                    package = package.replace(os.sep, ".")
-                    yield package
+                    yield package.replace(os.sep, ".")
 
     def list_modules():
         source_path = project.expand_path("$dir_source_main_python")
@@ -78,38 +77,44 @@ def init_python_directories(project):
 def package(project, logger):
     init_dist_target(project, logger)
 
-    logger.info("Building distribution in {0}".format(project.expand_path("$" + DISTRIBUTION_PROPERTY)))
+    logger.info(
+        "Building distribution in {0}".format(
+            project.expand_path(f"${DISTRIBUTION_PROPERTY}")
+        )
+    )
 
     copy_python_sources(project, logger)
     copy_scripts(project, logger)
 
 
 def copy_scripts(project, logger):
-    scripts_target = project.expand_path("$" + DISTRIBUTION_PROPERTY)
+    scripts_target = project.expand_path(f"${DISTRIBUTION_PROPERTY}")
     if project.get_property(SCRIPTS_TARGET_PROPERTY):
-        scripts_target = project.expand_path("$" + DISTRIBUTION_PROPERTY + "/$" + SCRIPTS_TARGET_PROPERTY)
+        scripts_target = project.expand_path(
+            f"${DISTRIBUTION_PROPERTY}/${SCRIPTS_TARGET_PROPERTY}"
+        )
 
     if not os.path.exists(scripts_target):
         os.mkdir(scripts_target)
 
     logger.info("Copying scripts to %s", scripts_target)
 
-    scripts_source = project.expand_path("$" + SCRIPTS_SOURCES_PROPERTY)
+    scripts_source = project.expand_path(f"${SCRIPTS_SOURCES_PROPERTY}")
     if not os.path.exists(scripts_source):
         return
     for script in project.list_scripts():
         logger.debug("Copying script %s", script)
-        source_file = project.expand_path("$" + SCRIPTS_SOURCES_PROPERTY, script)
+        source_file = project.expand_path(f"${SCRIPTS_SOURCES_PROPERTY}", script)
         shutil.copy(source_file, scripts_target)
 
 
 def copy_python_sources(project, logger):
-    for package in os.listdir(project.expand_path("$" + PYTHON_SOURCES_PROPERTY)):
+    for package in os.listdir(project.expand_path(f"${PYTHON_SOURCES_PROPERTY}")):
         if HIDDEN_FILE_NAME_PATTERN.match(package):
             continue
         logger.debug("Copying module/ package %s", package)
-        source = project.expand_path("$" + PYTHON_SOURCES_PROPERTY, package)
-        target = project.expand_path("$" + DISTRIBUTION_PROPERTY, package)
+        source = project.expand_path(f"${PYTHON_SOURCES_PROPERTY}", package)
+        target = project.expand_path(f"${DISTRIBUTION_PROPERTY}", package)
         if os.path.isdir(source):
             shutil.copytree(source, target,
                             symlinks=False,
@@ -119,7 +124,7 @@ def copy_python_sources(project, logger):
 
 
 def init_dist_target(project, logger):
-    dist_target = project.expand_path("$" + DISTRIBUTION_PROPERTY)
+    dist_target = project.expand_path(f"${DISTRIBUTION_PROPERTY}")
 
     if os.path.exists(dist_target):
         logger.debug("Removing preexisting distribution %s", dist_target)

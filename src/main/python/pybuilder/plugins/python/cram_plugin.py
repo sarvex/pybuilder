@@ -65,8 +65,7 @@ def _cram_command_for(project):
 def _find_files(project):
     cram_dir = project.get_property('dir_source_cmdlinetest')
     cram_test_file_glob = project.get_property("cram_test_file_glob")
-    cram_files = discover_files_matching(cram_dir, cram_test_file_glob)
-    return cram_files
+    return discover_files_matching(cram_dir, cram_test_file_glob)
 
 
 def _report_file(project):
@@ -74,7 +73,7 @@ def _report_file(project):
 
 
 def _prepend_path(env, variable, value):
-    env[variable] = value + ":" + env.get(variable, '')
+    env[variable] = f"{value}:" + env.get(variable, '')
 
 
 @task

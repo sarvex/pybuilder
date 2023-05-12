@@ -82,9 +82,8 @@ class DiscoverAffectedFilesTest(unittest.TestCase):
         project = Mock()
 
         def get_property(property):
-            if property == 'dir_source_integrationtest_python':
-                return None
-            return property
+            return None if property == 'dir_source_integrationtest_python' else property
+
         project.get_property.side_effect = get_property
 
         discover_affected_files(True, False, project)
@@ -98,9 +97,8 @@ class DiscoverAffectedFilesTest(unittest.TestCase):
         project = Mock()
 
         def get_property(property):
-            if property == 'dir_source_unittest_python':
-                return None
-            return property
+            return None if property == 'dir_source_unittest_python' else property
+
         project.get_property.side_effect = get_property
 
         discover_affected_files(True, False, project)
@@ -114,9 +112,8 @@ class DiscoverAffectedFilesTest(unittest.TestCase):
         project = Mock()
 
         def get_property(property):
-            if property == 'dir_source_main_python':
-                return property
-            return None
+            return property if property == 'dir_source_main_python' else None
+
         project.get_property.side_effect = get_property
 
         discover_affected_files(True, False, project)

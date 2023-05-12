@@ -37,8 +37,7 @@ def run_unit_tests(project, logger):
     if pyfix_unittest_file_suffix is not None:
         logger.warn("pyfix_unittest_file_suffix is deprecated, please use pyfix_unittest_module_glob")
         module_glob = "*{0}".format(pyfix_unittest_file_suffix)
-        if module_glob.endswith(".py"):
-            module_glob = module_glob[:-3]
+        module_glob = module_glob.removesuffix(".py")
         project.set_property("pyfix_unittest_module_glob", module_glob)
     else:
         module_glob = project.get_property("pyfix_unittest_module_glob")

@@ -41,7 +41,7 @@ class PydevPluginTests(unittest.TestCase):
         project.set_property('dir_source_main_python', 'src/main/python')
         init_pydev_plugin(project)
         mock_open.return_value = MagicMock(spec=TYPE_FILE)
-        os.path.join.side_effect = lambda first, second: first + '/' + second
+        os.path.join.side_effect = lambda first, second: f'{first}/{second}'
 
         pydev_generate(project, Mock())
 

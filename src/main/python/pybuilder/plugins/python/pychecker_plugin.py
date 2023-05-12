@@ -47,9 +47,7 @@ def check_pychecker_available(logger):
 
 def build_command_line(project):
     command_line = ["pychecker"]
-    command_args = project.get_property("pychecker_args")
-
-    if command_args:
+    if command_args := project.get_property("pychecker_args"):
         command_line += command_args
     else:
         command_line += DEFAULT_PYCHECKER_ARGUMENTS
@@ -60,7 +58,9 @@ def build_command_line(project):
 @task("analyze")
 def execute_pychecker(project, logger):
     command_line = build_command_line(project)
-    logger.info("Executing pychecker on project sources: %s" % (' '.join(command_line)))
+    logger.info(
+        f"Executing pychecker on project sources: {' '.join(command_line)}"
+    )
 
     _, report_file = execute_tool_on_modules(project, "pychecker", command_line, True)
 

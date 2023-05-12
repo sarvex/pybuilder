@@ -480,14 +480,19 @@ class ExecutionManagerBuildExecutionPlanTest(ExecutionManagerTestBase):
         one = mock(name="one", dependencies=[])
         self.execution_manager.register_task(one)
 
-        self.assertEqual(self.execution_manager.collect_all_transitive_tasks(["one"]), set([one]))
+        self.assertEqual(
+            self.execution_manager.collect_all_transitive_tasks(["one"]), {one}
+        )
 
     def test_should_collect_all_tasks_when_there_is_a_simple_dependency(self):
         one = mock(name="one", dependencies=["two"])
         two = mock(name="two", dependencies=[])
         self.execution_manager.register_task(one, two)
 
-        self.assertEqual(self.execution_manager.collect_all_transitive_tasks(["one"]), set([one, two]))
+        self.assertEqual(
+            self.execution_manager.collect_all_transitive_tasks(["one"]),
+            {one, two},
+        )
 
     def test_should_collect_all_tasks_when_there_is_a_transitive_dependency(self):
         one = mock(name="one", dependencies=["two"])
@@ -495,7 +500,10 @@ class ExecutionManagerBuildExecutionPlanTest(ExecutionManagerTestBase):
         three = mock(name="three", dependencies=[])
         self.execution_manager.register_task(one, two, three)
 
-        self.assertEqual(self.execution_manager.collect_all_transitive_tasks(["one"]), set([one, two, three]))
+        self.assertEqual(
+            self.execution_manager.collect_all_transitive_tasks(["one"]),
+            {one, two, three},
+        )
 
     def test_should_collect_all_tasks_when_several_tasks_given(self):
         one = mock(name="one", dependencies=[])
@@ -503,7 +511,10 @@ class ExecutionManagerBuildExecutionPlanTest(ExecutionManagerTestBase):
         three = mock(name="three", dependencies=[])
         self.execution_manager.register_task(one, two, three)
 
-        self.assertEqual(self.execution_manager.collect_all_transitive_tasks(["one", "two"]), set([one, two, three]))
+        self.assertEqual(
+            self.execution_manager.collect_all_transitive_tasks(["one", "two"]),
+            {one, two, three},
+        )
 
     def test_should_only_collect_required_tasks(self):
         one = mock(name="one", dependencies=["three"])
@@ -511,7 +522,10 @@ class ExecutionManagerBuildExecutionPlanTest(ExecutionManagerTestBase):
         three = mock(name="three", dependencies=[])
         self.execution_manager.register_task(one, two, three)
 
-        self.assertEqual(self.execution_manager.collect_all_transitive_tasks(["one"]), set([one, three]))
+        self.assertEqual(
+            self.execution_manager.collect_all_transitive_tasks(["one"]),
+            {one, three},
+        )
 
     def test_should_raise_exception_when_building_execution_plan_and_dependencies_are_not_resolved(self):
         self.assertRaises(DependenciesNotResolvedException,

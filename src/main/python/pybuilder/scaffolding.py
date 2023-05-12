@@ -62,12 +62,11 @@ def collect_project_information():
 
 
 def suggest_plugins(plugins):
-    chosen_plugins = [plugin for plugin in [suggest(plugin) for plugin in plugins] if plugin]
-    return chosen_plugins
+    return [plugin for plugin in [suggest(plugin) for plugin in plugins] if plugin]
 
 
 def suggest(plugin):
-    choice = prompt_user('Use plugin %s (Y/n)?' % plugin, 'y')
+    choice = prompt_user(f'Use plugin {plugin} (Y/n)?', 'y')
     plugin_enabled = not choice or choice.lower() == 'y'
     return plugin if plugin_enabled else None
 
@@ -126,7 +125,9 @@ def set_properties(project):
         return self.DESCRIPTOR_TEMPLATE.substitute(self.__dict__)
 
     def build_imports(self):
-        self.activated_plugins = '\n'.join(['use_plugin("%s")' % plugin for plugin in self.plugins])
+        self.activated_plugins = '\n'.join(
+            [f'use_plugin("{plugin}")' for plugin in self.plugins]
+        )
 
     def build_initializer(self):
         self.core_imports.append('init')
@@ -164,10 +165,12 @@ def set_properties(project):
 
     @staticmethod
     def _build_initializer_body_with_properties(properties_to_set):
-        initializer_body = ''
-        initializer_body += '\n'.join(
-            ['    project.set_property("{0}", "{1}")'.format(k, v) for k, v in properties_to_set])
-
+        initializer_body = '' + '\n'.join(
+            [
+                '    project.set_property("{0}", "{1}")'.format(k, v)
+                for k, v in properties_to_set
+            ]
+        )
         if not initializer_body:
             initializer_body += '    pass'
 

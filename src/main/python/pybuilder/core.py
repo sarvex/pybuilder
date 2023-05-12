@@ -208,9 +208,7 @@ class Dependency(object):
         return 13 * hash(self.name) + 17 * hash(self.version)
 
     def __lt__(self, other):
-        if not isinstance(other, Dependency):
-            return True
-        return self.name < other.name
+        return True if not isinstance(other, Dependency) else self.name < other.name
 
 
 class RequirementsFile(object):
@@ -229,9 +227,7 @@ class RequirementsFile(object):
         return not(self == other)
 
     def __lt__(self, other):
-        if not isinstance(other, RequirementsFile):
-            return False
-        return self.name < other.name
+        return self.name < other.name if isinstance(other, RequirementsFile) else False
 
     def __hash__(self):
         return 42 * hash(self.name)
@@ -266,16 +262,14 @@ class Project(object):
         self._files_to_install = []
 
     def __str__(self):
-        return "[Project name=%s basedir=%s]" % (self.name, self.basedir)
+        return f"[Project name={self.name} basedir={self.basedir}]"
 
     def validate(self):
         """
         Validates the project returning a list of validation error messages if the project is not valid.
         Returns an empty list if the project is valid.
         """
-        result = self.validate_dependencies()
-
-        return result
+        return self.validate_dependencies()
 
     def validate_dependencies(self):
         result = []
@@ -285,7 +279,9 @@ class Project(object):
         for dependency in self.build_dependencies:
             if dependency.name in build_dependencies_found:
                 if build_dependencies_found[dependency.name] == 1:
-                    result.append("Build dependency '%s' has been defined multiple times." % dependency.name)
+                    result.append(
+                        f"Build dependency '{dependency.name}' has been defined multiple times."
+                    )
                 build_dependencies_found[dependency.name] += 1
             else:
                 build_dependencies_found[dependency.name] = 1
@@ -295,12 +291,16 @@ class Project(object):
         for dependency in self.dependencies:
             if dependency.name in runtime_dependencies_found:
                 if runtime_dependencies_found[dependency.name] == 1:
-                    result.append("Runtime dependency '%s' has been defined multiple times." % dependency.name)
+                    result.append(
+                        f"Runtime dependency '{dependency.name}' has been defined multiple times."
+                    )
                 runtime_dependencies_found[dependency.name] += 1
             else:
                 runtime_dependencies_found[dependency.name] = 1
             if dependency.name in build_dependencies_found:
-                result.append("Runtime dependency '%s' has also been given as build dependency." % dependency.name)
+                result.append(
+                    f"Runtime dependency '{dependency.name}' has also been given as build dependency."
+                )
 
         return result
 
@@ -436,9 +436,7 @@ class Logger(object):
 
     @staticmethod
     def _format_message(message, *arguments):
-        if arguments:
-            return message % arguments
-        return message
+        return message % arguments if arguments else message
 
     def log(self, level, message, *arguments):
         if level >= self.threshold:

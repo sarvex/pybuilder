@@ -78,8 +78,10 @@ def sphinx_generate(project, logger):
 def get_sphinx_build_command(project):
     """Builds the sphinx-build command using project properties.
     """
-    options = ["-b %s" % project.get_property("sphinx_builder"),
-               "-c %s" % project.expand_path(project.get_property("sphinx_config_path")),
-               project.expand_path(project.get_property("sphinx_source_dir")),
-               project.expand_path(project.get_property("sphinx_output_dir"))]
-    return "sphinx-build %s" % " ".join(options)
+    options = [
+        f'-b {project.get_property("sphinx_builder")}',
+        f'-c {project.expand_path(project.get_property("sphinx_config_path"))}',
+        project.expand_path(project.get_property("sphinx_source_dir")),
+        project.expand_path(project.get_property("sphinx_output_dir")),
+    ]
+    return f'sphinx-build {" ".join(options)}'

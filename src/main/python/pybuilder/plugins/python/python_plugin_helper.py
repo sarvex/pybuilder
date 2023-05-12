@@ -30,7 +30,7 @@ def log_report(logger, name, report_lines):
     count_of_warnings = len(report_lines)
     if count_of_warnings > 0:
         for report_line in report_lines:
-            logger.warn(name + ': ' + report_line[:-1])
+            logger.warn(f'{name}: {report_line[:-1]}')
 
 
 def discover_python_files(directory):
@@ -58,7 +58,7 @@ def execute_tool_on_source_files(project, name, command_and_arguments, logger=No
                                  include_test_sources=False, include_scripts=False):
     files = discover_affected_files(include_test_sources, include_scripts, project)
 
-    command = as_list(command_and_arguments) + [f for f in files]
+    command = as_list(command_and_arguments) + list(files)
 
     report_file = project.expand_path("$dir_reports/{0}".format(name))
 
@@ -67,7 +67,7 @@ def execute_tool_on_source_files(project, name, command_and_arguments, logger=No
     report_file = execution_result[1]
     report_lines = read_file(report_file)
 
-    if project.get_property(name + "_verbose_output") and logger:
+    if project.get_property(f"{name}_verbose_output") and logger:
         log_report(logger, name, report_lines)
 
     return execution_result
@@ -78,7 +78,7 @@ def execute_tool_on_modules(project, name, command_and_arguments, extend_pythonp
     modules = discover_modules(source_dir)
     command = as_list(command_and_arguments) + modules
 
-    report_file = project.expand_path("$dir_reports/%s" % name)
+    report_file = project.expand_path(f"$dir_reports/{name}")
 
     env = os.environ
     if extend_pythonpath:

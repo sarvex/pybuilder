@@ -72,9 +72,7 @@ if __name__ == '__main__':
 
 
 def default(value, default=""):
-    if value is None:
-        return default
-    return value
+    return default if value is None else value
 
 
 @init
@@ -107,7 +105,9 @@ def render_setup_script(project):
     console_scripts = project.get_property("distutils_console_scripts", [])
 
     template_values = {
-        "module": "setuptools" if project.get_property("distutils_use_setuptools") else "distutils.core",
+        "module": "setuptools"
+        if project.get_property("distutils_use_setuptools")
+        else "distutils.core",
         "name": project.name,
         "version": project.version,
         "summary": default(project.summary),
@@ -117,18 +117,19 @@ def render_setup_script(project):
         "license": default(project.license),
         "url": default(project.url),
         "scripts": build_scripts_string(project),
-        "packages": str([package for package in project.list_packages()]),
-        "modules": str([module for module in project.list_modules()]),
+        "packages": str(list(project.list_packages())),
+        "modules": str(list(project.list_modules())),
         "classifiers": project.get_property("distutils_classifiers"),
-        "console_scripts": ",".join(["'%s'" % mapping for mapping in console_scripts]),
+        "console_scripts": ",".join(
+            [f"'{mapping}'" for mapping in console_scripts]
+        ),
         "data_files": build_data_files_string(project),
         "package_data": build_package_data_string(project),
         "dependencies": build_install_dependencies_string(project),
         "dependency_links": build_dependency_links_string(project),
-        "remove_hardlink_capabilities_for_shared_filesystems": (
-            "import os\ndel os.link"
-            if project.get_property("distutils_issue8876_workaround_enabled")
-            else "")
+        "remove_hardlink_capabilities_for_shared_filesystems": "import os\ndel os.link"
+        if project.get_property("distutils_issue8876_workaround_enabled")
+        else "",
     }
 
     return SETUP_TEMPLATE.substitute(template_values)
@@ -140,8 +141,9 @@ def write_manifest_file(project, logger):
         logger.debug("No data to write into MANIFEST.in")
         return
 
-    logger.debug("Files included in MANIFEST.in: %s" %
-                 project.manifest_included_files)
+    logger.debug(
+        f"Files included in MANIFEST.in: {project.manifest_included_files}"
+    )
 
     manifest_filename = project.expand_path("$dir_dist/MANIFEST.in")
     logger.info("Writing MANIFEST.in as %s", manifest_filename)
@@ -188,7 +190,8 @@ def build_binary_distribution(project, logger):
             return_code = process.wait()
             if return_code != 0:
                 raise BuildFailedException(
-                    "Error while executing setup command %s, see %s for details" % (command, output_file_path))
+                    f"Error while executing setup command {command}, see {output_file_path} for details"
+                )
 
 
 def strip_comments(requirements):
@@ -197,7 +200,7 @@ def strip_comments(requirements):
 
 
 def quote(requirements):
-    return ['"%s"' % requirement for requirement in requirements]
+    return [f'"{requirement}"' for requirement in requirements]
 
 
 def flatten_and_quote(requirements_file):
@@ -208,7 +211,7 @@ def flatten_and_quote(requirements_file):
 
 
 def format_single_dependency(dependency):
-    return '"%s%s"' % (dependency.name, build_dependency_version_string(dependency))
+    return f'"{dependency.name}{build_dependency_version_string(dependency)}"'
 
 
 def build_install_dependencies_string(project):
@@ -227,8 +230,7 @@ def build_install_dependencies_string(project):
 
     dependencies.extend(flattened_requirements)
 
-    result = "install_requires = [ "
-    result += ", ".join(dependencies)
+    result = "install_requires = [ " + ", ".join(dependencies)
     result += " ],"
     return result
 
@@ -241,7 +243,7 @@ def build_dependency_links_string(project):
         return ""
 
     def format_single_dependency(dependency):
-        return '"%s"' % dependency.url
+        return f'"{dependency.url}"'
 
     result = "dependency_links = [ "
     result += ", ".join(map(format_single_dependency, dependency_links))
@@ -250,10 +252,9 @@ def build_dependency_links_string(project):
 
 
 def build_scripts_string(project):
-    scripts = [script for script in project.list_scripts()]
+    scripts = list(project.list_scripts())
 
-    scripts_dir = project.get_property("dir_dist_scripts")
-    if scripts_dir:
+    if scripts_dir := project.get_property("dir_dist_scripts"):
         scripts = list(map(lambda s: os.path.join(scripts_dir, s), scripts))
 
     return str(scripts)
@@ -262,10 +263,7 @@ def build_scripts_string(project):
 def build_data_files_string(project):
     data_files = project.files_to_install
 
-    if not len(data_files):
-        return ""
-
-    return "data_files = %s," % str(data_files)
+    return "" if not len(data_files) else f"data_files = {str(data_files)},"
 
 
 def build_package_data_string(project):
@@ -278,7 +276,7 @@ def build_package_data_string(project):
     last_element = sorted_keys[-1]
 
     for key in sorted_keys:
-        package_data_string += "'%s': %s" % (key, str(package_data[key]))
+        package_data_string += f"'{key}': {str(package_data[key])}"
 
         if key is not last_element:
             package_data_string += ", "

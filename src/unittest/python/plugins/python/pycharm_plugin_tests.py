@@ -56,7 +56,7 @@ class PycharmPluginTests(unittest.TestCase):
         project = Project('basedir', name='pybuilder')
         project.set_property('dir_source_main_python', 'src/main/python')
         mock_open.return_value = MagicMock(spec=TYPE_FILE)
-        os.path.join.side_effect = lambda first, second: first + '/' + second
+        os.path.join.side_effect = lambda first, second: f'{first}/{second}'
 
         pycharm_generate(project, Mock())
 

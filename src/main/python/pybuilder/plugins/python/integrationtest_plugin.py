@@ -203,9 +203,9 @@ def prepare_reports_directory(project):
 
 
 def run_single_test(logger, project, reports_dir, test, output_test_names=True):
-    additional_integrationtest_commandline_text = project.get_property("integrationtest_additional_commandline", "")
-
-    if additional_integrationtest_commandline_text:
+    if additional_integrationtest_commandline_text := project.get_property(
+        "integrationtest_additional_commandline", ""
+    ):
         additional_integrationtest_commandline = tuple(additional_integrationtest_commandline_text.split(" "))
     else:
         additional_integrationtest_commandline = ()
@@ -221,7 +221,7 @@ def run_single_test(logger, project, reports_dir, test, output_test_names=True):
     command_and_arguments += additional_integrationtest_commandline
 
     report_file_name = os.path.join(reports_dir, name)
-    error_file_name = report_file_name + ".err"
+    error_file_name = f"{report_file_name}.err"
     return_code = execute_command(
         command_and_arguments, report_file_name, env, error_file_name=error_file_name)
     test_time.stop()
@@ -313,14 +313,14 @@ class TaskPoolProgress(object):
             self.WAITING_SYMBOL * waiting_tasks_count, fg(GREY))
         trailing_space = ' ' if not pacman else ''
 
-        return "[%s%s%s%s]%s" % (finished_tests_progress, pacman, running_tests_progress, waiting_tasks_progress, trailing_space)
+        return f"[{finished_tests_progress}{pacman}{running_tests_progress}{waiting_tasks_progress}]{trailing_space}"
 
     def render_to_terminal(self):
         if self.can_be_displayed:
             text_to_render = self.render()
             characters_to_be_erased = self.last_render_length
             self.last_render_length = len(text_to_render)
-            text_to_render = "%s%s" % (characters_to_be_erased * self.BACKSPACE, text_to_render)
+            text_to_render = f"{characters_to_be_erased * self.BACKSPACE}{text_to_render}"
             print_text(text_to_render, flush=True)
 
     def mark_as_finished(self):
@@ -329,17 +329,12 @@ class TaskPoolProgress(object):
 
     @property
     def pacman_symbol(self):
-        if self.is_finished:
-            return self.NO_PACMAN
-        else:
-            return self.PACMAN_FORWARD
+        return self.NO_PACMAN if self.is_finished else self.PACMAN_FORWARD
 
     @property
     def running_tasks_count(self):
         pending_tasks = (self.total_tasks_count - self.finished_tasks_count)
-        if pending_tasks > self.workers_count:
-            return self.workers_count
-        return pending_tasks
+        return min(pending_tasks, self.workers_count)
 
     @property
     def waiting_tasks_count(self):
@@ -351,6 +346,4 @@ class TaskPoolProgress(object):
 
     @property
     def can_be_displayed(self):
-        if sys.stdout.isatty():
-            return True
-        return False
+        return bool(sys.stdout.isatty())

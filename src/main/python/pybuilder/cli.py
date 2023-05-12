@@ -55,9 +55,7 @@ class StdOutLogger(Logger):
             return "[DEBUG]"
         if Logger.INFO == level:
             return "[INFO] "
-        if Logger.WARN == level:
-            return "[WARN] "
-        return "[ERROR]"
+        return "[WARN] " if Logger.WARN == level else "[ERROR]"
 
     def _do_log(self, level, message, *arguments):
         formatted_message = self._format_message(message, *arguments)
@@ -78,8 +76,10 @@ class ColoredStdOutLogger(StdOutLogger):
 
 
 def parse_options(args):
-    parser = optparse.OptionParser(usage="%prog [options] task1 [[task2] ...]",
-                                   version="%prog " + __version__)
+    parser = optparse.OptionParser(
+        usage="%prog [options] task1 [[task2] ...]",
+        version=f"%prog {__version__}",
+    )
 
     def error(msg):
         raise CommandLineUsageException(
@@ -159,7 +159,7 @@ def parse_options(args):
     property_overrides = {}
     for pair in options.property_overrides:
         if not PROPERTY_OVERRIDE_PATTERN.match(pair):
-            parser.error("%s is not a property definition." % pair)
+            parser.error(f"{pair} is not a property definition.")
         key, val = pair.split("=")
         property_overrides[key] = val
 
@@ -173,8 +173,7 @@ def parse_options(args):
 
 def init_reactor(logger):
     execution_manager = ExecutionManager(logger)
-    reactor = Reactor(logger, execution_manager)
-    return reactor
+    return Reactor(logger, execution_manager)
 
 
 def should_colorize(options):
@@ -188,12 +187,11 @@ def init_logger(options):
     elif options.quiet:
         threshold = Logger.WARN
 
-    if not should_colorize(options):
-        logger = StdOutLogger(threshold)
-    else:
-        logger = ColoredStdOutLogger(threshold)
-
-    return logger
+    return (
+        StdOutLogger(threshold)
+        if not should_colorize(options)
+        else ColoredStdOutLogger(threshold)
+    )
 
 
 def print_build_summary(options, summary):
@@ -204,10 +202,10 @@ def print_build_summary(options, summary):
     print_text_line("%20s: %s" %
                     ("Environments", ", ".join(options.environments)))
 
-    task_summary = ""
-    for task in summary.task_summaries:
-        task_summary += " %s [%d ms]" % (task.task, task.execution_time)
-
+    task_summary = "".join(
+        " %s [%d ms]" % (task.task, task.execution_time)
+        for task in summary.task_summaries
+    )
     print_text_line("%20s:%s" % ("Tasks", task_summary))
 
 
@@ -235,7 +233,7 @@ def print_elapsed_time_summary(start, end):
     time_needed = end - start
     millis = ((time_needed.days * 24 * 60 * 60) + time_needed.seconds) * \
         1000 + time_needed.microseconds / 1000
-    print_text_line("Build finished at %s" % format_timestamp(end))
+    print_text_line(f"Build finished at {format_timestamp(end)}")
     print_text_line("Build took %d seconds (%d ms)" %
                     (time_needed.seconds, millis))
 
@@ -271,23 +269,28 @@ def print_list_of_tasks(reactor, quiet=False):
     sorted_tasks = sorted(tasks)
 
     if quiet:
-        print_text_line("\n".join([task.name + ":" + task_description(task)
-                                   for task in sorted_tasks]))
+        print_text_line(
+            "\n".join(
+                [
+                    f"{task.name}:{task_description(task)}"
+                    for task in sorted_tasks
+                ]
+            )
+        )
         return
 
     column_length = length_of_longest_string(
         list(map(lambda task: task.name, sorted_tasks)))
     column_length += 4
 
-    print_text_line('Tasks found for project "%s":' % reactor.project.name)
+    print_text_line(f'Tasks found for project "{reactor.project.name}":')
     for task in sorted_tasks:
         task_name = task.name.rjust(column_length)
         print_text_line("{0} - {1}".format(task_name, task_description(task)))
 
         if task.dependencies:
+            depends_on_message = f'depends on tasks: {" ".join(task.dependencies)}'
             whitespace = (column_length + 3) * " "
-            depends_on_message = "depends on tasks: %s" % " ".join(
-                task.dependencies)
             print_text_line(whitespace + depends_on_message)
 
 
@@ -319,7 +322,7 @@ def main(*args):
     if not options.very_quiet:
         print_styled_text_line(
             "PyBuilder version {0}".format(__version__), options, BOLD)
-        print_text_line("Build started at %s" % format_timestamp(start))
+        print_text_line(f"Build started at {format_timestamp(start)}")
         draw_line()
 
     successful = True
@@ -354,7 +357,4 @@ def main(*args):
             print_summary(
                 successful, summary, start, end, options, failure_message)
 
-        if not successful:
-            return 1
-
-        return 0
+        return 1 if not successful else 0
